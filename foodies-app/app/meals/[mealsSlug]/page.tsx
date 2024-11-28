@@ -1,42 +1,41 @@
-import Link from 'next/link';
 import React from 'react';
 import styles from './page.module.css';
 import Image from 'next/image';
+import { getMeal } from '@/lib/db';
+import { notFound } from 'next/navigation';
 type Props = {
 	mealsSlug: string;
 };
 
 const MealSinglePage = async ({ params }: { params: Props }) => {
 	const { mealsSlug } = await params;
-	const url = `${process.env.NEXT_PUBLIC_SITE_URL}/api/meals/${mealsSlug}`;
-	// console.log(url);
-	// const res = await fetch(url);
-	// const meal = await res.json();
-	// console.log(meal);
+	const meal = getMeal(mealsSlug);
+	if (!meal) {
+		notFound();
+	}
+	let { title, image, summary, instructions, creator, creator_email } = meal;
+
+	instructions = instructions.replace(/\n/g, '<br />');
 	return (
-		<div></div>
-		// <>
-		// 	<header className={styles.header}>
-		// 		<div className={styles.image}>
-		// 			<Image fill />
-		// 		</div>
-		// 		<div className={styles.headerText}>
-		// 			<h1>Title</h1>
-		// 			<p className={styles.creator}>
-		// 				by <a href={`mailto:${'email'}`}>name</a>
-		// 			</p>
-		// 			<p className={styles.summery}>summery</p>
-		// 		</div>
-		// 	</header>
-		// 	<main>
-		// 		<p
-		// 			className={styles.instructions}
-		// 			dangerouslySetInnerHTML={{ __html: '...' }}></p>
-		// 	</main>
-		// 	<h1>MealSinglePage</h1>
-		// 	{mealsSlug}
-		// 	<Link href={'/'}>Go Home</Link>
-		// </>
+		<>
+			<header className={styles.header}>
+				<div className={styles.image}>
+					<Image src={image} fill alt={title} />
+				</div>
+				<div className={styles.headerText}>
+					<h1>{title}</h1>
+					<p className={styles.creator}>
+						by <a href={`mailto:${creator_email}`}>{creator}</a>
+					</p>
+					<p className={styles.summery}>{summary}</p>
+				</div>
+			</header>
+			<main>
+				<p
+					className={styles.instructions}
+					dangerouslySetInnerHTML={{ __html: instructions }}></p>
+			</main>
+		</>
 	);
 };
 
